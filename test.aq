@@ -1,0 +1,4 @@
+hello : Int = 7;
+nope : Int = hello;
+
+main : Int -> [String] -> Int = hello;
