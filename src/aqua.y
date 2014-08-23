@@ -32,12 +32,12 @@ extern void yyerror(const char* s);
 
 ident
   : IDENTIFIER
-    { $$ = new NIdentifier($1); }
+    { $$ = new NIdentifier(*$1); delete $1; }
   ;
 
 numeric
   : INTEGER
-    { $$ = new NInteger(atol($1->c_str())); }
+    { $$ = new NInteger(atol($1->c_str())); delete $1; }
   ;
 
 expr

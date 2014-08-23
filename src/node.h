@@ -3,10 +3,14 @@
 
 #include <iostream>
 #include <vector>
+#include <llvm/IR/Value.h>
+
+class CodeGenContext;
 
 class Node {
 public:
     virtual ~Node() {}
+    virtual llvm::Value* codeGen(CodeGenContext& context) {}
 };
 
 class NExpression : public Node {};
@@ -14,9 +18,11 @@ class NStatement : public Node {};
 
 class NIdentifier : public NExpression {
 public:
-    std::string* name;
-    NIdentifier(std::string* name)
+    std::string name;
+    NIdentifier(std::string name)
         : name(name) {};
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
 class NDeclaration : public NStatement {
@@ -25,13 +31,17 @@ public:
     NExpression* expr;
     NDeclaration(NIdentifier* id, NExpression* expr)
         : id(id), expr(expr) {}
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
 class NInteger : public NExpression {
 public:
-    long long num;
-    NInteger(long long num)
-        : num(num) {}
+    long long value;
+    NInteger(long long value)
+        : value(value) {}
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
 typedef std::vector<NStatement*> NStatementList;
@@ -45,7 +55,7 @@ public:
         this->statementlist.push_back(statement);
     }
 
-    void exec(void) {}
+    virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
 #endif

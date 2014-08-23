@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "node.h"
+#include "codegen.h"
 #include "aqua.tab.h"
 
 extern NBlock* programBlock;
@@ -23,7 +24,10 @@ int main(int argc, char **argv) {
     // set lex to read from it instead of defaulting to STDIN:
     yyin = myfile;
     yyparse();
-    programBlock->exec();
+
+    CodeGenContext context;
+    context.generateCode(*programBlock);
+    context.runCode();
 }
 
 bool verifyArgs(int argc, char **argv) {
