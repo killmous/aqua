@@ -34,7 +34,7 @@ GenericValue CodeGenContext::runCode() {
 }
 
 /* Returns an LLVM type based on the identifier */
-static const Type *typeOf(const NIdentifier& type) {
+static Type *typeOf(const NIdentifier& type) {
     if (type.name.compare("Int") == 0) {
         return Type::getInt64Ty(getGlobalContext());
     }
@@ -56,8 +56,15 @@ Value* NIdentifier::codeGen(CodeGenContext& context) {
 }
 
 Value* NDeclaration::codeGen(CodeGenContext& context) {
-    std::cout << "Creating variable declaration " << id->name << std::endl;
-    AllocaInst *alloc = new AllocaInst(Type::getInt64Ty(getGlobalContext()), id->name.c_str(), context.currentBlock());
+    std::string typeName;
+    for(auto it : type) {
+        typeName += it->name;
+        if(it != *(--type.end())) typeName += " -> ";
+        else typeName += " ";
+    }
+    std::cout << "Creating variable declaration "
+        << typeName << id->name << std::endl;
+    AllocaInst *alloc = new AllocaInst(typeOf(*type[0]), id->name.c_str(), context.currentBlock());
     context.locals()[id->name] = alloc;
     if (expr != NULL) {
         new StoreInst(expr->codeGen(context), context.locals()[id->name], false, context.currentBlock());
