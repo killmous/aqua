@@ -14,7 +14,6 @@ extern void yyerror(const char* s);
     NStatement* stmt;
     NExpression* expr;
     NIdentifier* id;
-    TypeList* typesig;
     std::string* string;
     int token;
 }
@@ -26,7 +25,6 @@ extern void yyerror(const char* s);
 %type <stmt>    declaration
 %type <expr>    numeric expr
 %type <id>      ident type
-%type <typesig> type_signature
 
 %start program
 
@@ -50,13 +48,6 @@ expr
   | numeric
   ;
 
-type_signature
-  : type
-    { $$ = new TypeList(); $$->push_back($1); }
-  | type_signature ARROW type
-    { $$ = $1; $$->push_back($3); }
-  ;
-
 type
   : ident
   | '[' ident ']'
@@ -64,8 +55,8 @@ type
   ;
 
 declaration
-  : ident ':' type_signature '=' expr ';'
-    { $$ = new NDeclaration($1, *$3, $5); }
+  : ident ':' type '=' expr ';'
+    { $$ = new NVariableDeclaration($1, $3, $5); }
   ;
 
 declaration_list

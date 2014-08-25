@@ -24,14 +24,13 @@ public:
 
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
-typedef std::vector<NIdentifier*> TypeList;
 
-class NDeclaration : public NStatement {
+class NVariableDeclaration : public NStatement {
 public:
     NIdentifier* id;
-    TypeList type;
+    NIdentifier* type;
     NExpression* expr;
-    NDeclaration(NIdentifier* id, TypeList type, NExpression* expr)
+    NVariableDeclaration(NIdentifier* id, NIdentifier* type, NExpression* expr)
         : id(id), type(type), expr(expr) {}
 
     virtual llvm::Value* codeGen(CodeGenContext& context);

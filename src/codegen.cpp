@@ -62,16 +62,10 @@ Value* NIdentifier::codeGen(CodeGenContext& context) {
     return new LoadInst(context.locals()[name], "", false, context.currentBlock());
 }
 
-Value* NDeclaration::codeGen(CodeGenContext& context) {
-    std::string typeName;
-    for(auto it : type) {
-        typeName += it->name;
-        if(it != *(--type.end())) typeName += " -> ";
-        else typeName += " ";
-    }
-    std::cout << "Creating function declaration "
-        << id->name << " : " << typeName << std::endl;
-    AllocaInst *alloc = new AllocaInst(typeOf(*type[0]), id->name.c_str(), context.currentBlock());
+Value* NVariableDeclaration::codeGen(CodeGenContext& context) {
+    std::cout << "Creating variable declaration "
+        << id->name << " : " << type->name << std::endl;
+    AllocaInst *alloc = new AllocaInst(typeOf(*type), id->name.c_str(), context.currentBlock());
     context.locals()[id->name] = alloc;
     if (expr != NULL) {
         new StoreInst(expr->codeGen(context), context.locals()[id->name], false, context.currentBlock());
