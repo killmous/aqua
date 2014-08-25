@@ -46,6 +46,15 @@ public:
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
+class NDouble : public NExpression {
+public:
+    double value;
+    NDouble(double value)
+        : value(value) {}
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
+};
+
 typedef std::vector<NStatement*> NStatementList;
 
 class NBlock : public NStatement {

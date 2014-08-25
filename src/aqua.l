@@ -27,6 +27,8 @@ void count();
 "{"                     {               return '{';             }
 "}"                     {               return '}';             }
 {D}+                    {   SAVE_TOKEN; return INTEGER;         }
+{D}+\.{D}*              {   SAVE_TOKEN; return DOUBLE;          }
+{D}*\.{D}+              {   SAVE_TOKEN; return DOUBLE;          }
 [a-zA-Z_][a-zA-Z0-9]*   {   SAVE_TOKEN; return IDENTIFIER;      }
 
 [ \t\n]                 /*  ignore whitespace               */

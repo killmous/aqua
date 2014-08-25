@@ -19,7 +19,7 @@ extern void yyerror(const char* s);
     int token;
 }
 
-%token <string> IDENTIFIER INTEGER
+%token <string> IDENTIFIER INTEGER DOUBLE
 %token <token> ARROW FATARROW
 
 %type <block>   program declaration_list
@@ -40,6 +40,8 @@ ident
 numeric
   : INTEGER
     { $$ = new NInteger(atol($1->c_str())); delete $1; }
+  | DOUBLE
+    { $$ = new NDouble(atof($1->c_str())); delete $1; }
   ;
 
 expr

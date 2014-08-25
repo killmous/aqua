@@ -37,6 +37,8 @@ GenericValue CodeGenContext::runCode() {
 static Type *typeOf(const NIdentifier& type) {
     if (type.name.compare("Int") == 0) {
         return Type::getInt64Ty(getGlobalContext());
+    } else if (type.name.compare("Double") == 0) {
+        return Type::getDoubleTy(getGlobalContext());
     }
     return Type::getVoidTy(getGlobalContext());
 }
@@ -44,6 +46,11 @@ static Type *typeOf(const NIdentifier& type) {
 Value* NInteger::codeGen(CodeGenContext& context) {
     std::cout << "Creating integer: " << value << std::endl;
     return ConstantInt::get(Type::getInt64Ty(getGlobalContext()), value, true);
+}
+
+Value* NDouble::codeGen(CodeGenContext& context) {
+    std::cout << "Creating double: " << value << std::endl;
+    return ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value);
 }
 
 Value* NIdentifier::codeGen(CodeGenContext& context) {
@@ -62,8 +69,8 @@ Value* NDeclaration::codeGen(CodeGenContext& context) {
         if(it != *(--type.end())) typeName += " -> ";
         else typeName += " ";
     }
-    std::cout << "Creating variable declaration "
-        << typeName << id->name << std::endl;
+    std::cout << "Creating function declaration "
+        << id->name << " : " << typeName << std::endl;
     AllocaInst *alloc = new AllocaInst(typeOf(*type[0]), id->name.c_str(), context.currentBlock());
     context.locals()[id->name] = alloc;
     if (expr != NULL) {

@@ -1,4 +1,4 @@
-hello : Int = 7;
+hello : Double = 7.8;
 nope : Int = hello;
 
-main : Int -> [String] -> Int = hello;
+main : Int -> [String] -> Int = nope;
