@@ -1,6 +1,8 @@
 #include "node.h"
 #include "codegen.h"
 
+static IRBuilder<> Builder(getGlobalContext());
+
 void CodeGenContext::generateCode(NBlock& root) {
     /* Create the top level interpreter function to call as entry */
     llvm::ArrayRef<Type*> argTypes;
@@ -45,12 +47,28 @@ static Type *typeOf(const NIdentifier& type) {
 
 Value* NInteger::codeGen(CodeGenContext& context) {
     std::cout << "Creating integer: " << value << std::endl;
-    return ConstantInt::get(Type::getInt64Ty(getGlobalContext()), value, true);
+
+    FunctionType *ftype = FunctionType::get(Type::getInt64Ty(getGlobalContext()), false);
+    Function *function = Function::Create(ftype, GlobalValue::InternalLinkage, "", context.module);
+    BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
+
+    Builder.SetInsertPoint(bblock);
+    Builder.CreateRet(ConstantInt::get(Type::getInt64Ty(getGlobalContext()), value, true));
+
+    return function;
 }
 
 Value* NDouble::codeGen(CodeGenContext& context) {
     std::cout << "Creating double: " << value << std::endl;
-    return ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value);
+
+    FunctionType *ftype = FunctionType::get(Type::getDoubleTy(getGlobalContext()), false);
+    Function *function = Function::Create(ftype, GlobalValue::InternalLinkage, "", context.module);
+    BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
+
+    Builder.SetInsertPoint(bblock);
+    Builder.CreateRet(ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value));
+
+    return function;
 }
 
 Value* NIdentifier::codeGen(CodeGenContext& context) {

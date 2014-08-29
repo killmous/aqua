@@ -1,4 +1,4 @@
-hello : Double = 7.8;
-nope : Int = hello;
+hello : Int = 12;
+goodbye : Double = 13.5;
 
-main : Void = print;
+no : Int = goodbye;
