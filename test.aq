@@ -1,4 +1,4 @@
-hello : Int = 12;
-goodbye : Double = 13.5;
+x : Int = 12;
+y : Double = 13.5;
 
-no : Int = goodbye;
+z : Int = x;

@@ -32,7 +32,6 @@ public:
     NExpression* expr;
     NVariableDeclaration(NIdentifier* id, NIdentifier* type, NExpression* expr)
         : id(id), type(type), expr(expr) {}
-
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 

@@ -38,11 +38,12 @@ GenericValue CodeGenContext::runCode() {
 /* Returns an LLVM type based on the identifier */
 static Type *typeOf(const NIdentifier& type) {
     if (type.name.compare("Int") == 0) {
-        return Type::getInt64Ty(getGlobalContext());
+        return FunctionType::get(Type::getInt64Ty(getGlobalContext()), false);
     } else if (type.name.compare("Double") == 0) {
-        return Type::getDoubleTy(getGlobalContext());
+        return FunctionType::get(Type::getDoubleTy(getGlobalContext()), false);
+    } else {
+        return FunctionType::get(Type::getVoidTy(getGlobalContext()), false);
     }
-    return Type::getVoidTy(getGlobalContext());
 }
 
 Value* NInteger::codeGen(CodeGenContext& context) {
@@ -83,7 +84,7 @@ Value* NIdentifier::codeGen(CodeGenContext& context) {
 Value* NVariableDeclaration::codeGen(CodeGenContext& context) {
     std::cout << "Creating variable declaration "
         << id->name << " : " << type->name << std::endl;
-    AllocaInst *alloc = new AllocaInst(typeOf(*type), id->name.c_str(), context.currentBlock());
+    AllocaInst *alloc = new AllocaInst(PointerType::getUnqual(typeOf(*type)), id->name.c_str(), context.currentBlock());
     context.locals()[id->name] = alloc;
     if (expr != NULL) {
         new StoreInst(expr->codeGen(context), context.locals()[id->name], false, context.currentBlock());
