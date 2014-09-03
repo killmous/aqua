@@ -24,14 +24,15 @@ public:
 
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
+typedef std::vector<NIdentifier*> TypeSignature;
 
-class NVariableDeclaration : public NStatement {
+class NDeclaration : public NStatement {
 public:
     NIdentifier* id;
-    NIdentifier* type;
+    TypeSignature* typesig;
     NExpression* expr;
-    NVariableDeclaration(NIdentifier* id, NIdentifier* type, NExpression* expr)
-        : id(id), type(type), expr(expr) {}
+    NDeclaration(NIdentifier* id, TypeSignature* typesig, NExpression* expr)
+        : id(id), typesig(typesig), expr(expr) {}
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 

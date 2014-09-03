@@ -1,4 +1,4 @@
 x : Int = 12;
 y : Double = 13.5;
 
-z : Int = x;
+main : Int -> [String] -> Void = x;
