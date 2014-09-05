@@ -4,8 +4,18 @@
 static IRBuilder<> Builder(getGlobalContext());
 
 void CodeGenContext::generateCode(NBlock& root) {
+    std::cout << "Generating code...\n";
+
+    /* Create the top level interpreter function to call as entry */
+    FunctionType *ftype = FunctionType::get(Type::getVoidTy(getGlobalContext()), false);
+    mainFunction = Function::Create(ftype, GlobalValue::InternalLinkage, "main", module);
+    BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", mainFunction, 0);
+
     /* Push a new variable/block context */
+    pushBlock(bblock);
     root.codeGen(*this); /* emit bytecode for the toplevel block */
+    ReturnInst::Create(getGlobalContext(), bblock);
+    popBlock();
 
     /* Print the bytecode in a human-readable format
        to see if our program compiled properly
@@ -40,50 +50,31 @@ static Type *typeOf(const NIdentifier& type) {
 
 Value* NInteger::codeGen(CodeGenContext& context) {
     std::cout << "Creating integer: " << value << std::endl;
-
-    FunctionType *ftype = FunctionType::get(Type::getInt64Ty(getGlobalContext()), false);
-    Function *function = Function::Create(ftype, GlobalValue::InternalLinkage, "", context.module);
-    BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
-
-    Builder.SetInsertPoint(bblock);
-    Builder.CreateRet(ConstantInt::get(Type::getInt64Ty(getGlobalContext()), value, true));
-
-    return function;
+    return ConstantInt::get(Type::getInt64Ty(getGlobalContext()), value, true);
 }
 
 Value* NDouble::codeGen(CodeGenContext& context) {
     std::cout << "Creating double: " << value << std::endl;
-
-    FunctionType *ftype = FunctionType::get(Type::getDoubleTy(getGlobalContext()), false);
-    Function *function = Function::Create(ftype, GlobalValue::InternalLinkage, "", context.module);
-    BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
-
-    Builder.SetInsertPoint(bblock);
-    Builder.CreateRet(ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value));
-
-    return function;
+    return ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value);
 }
 
 Value* NIdentifier::codeGen(CodeGenContext& context) {
     std::cout << "Creating identifier reference: " << name << std::endl;
-    /*if (context.locals().find(name) == context.locals().end()) {
+    if (context.locals().find(name) == context.locals().end()) {
         std::cerr << "undeclared variable " << name << std::endl;
         return NULL;
-    }*/
-    return context.module->getFunction(name);
+    }
+    return new LoadInst(context.locals()[name], "", false, context.currentBlock());
 }
 
-Value* NDeclaration::codeGen(CodeGenContext& context) {
-    std::cout << "Creating variable declaration "
-        << id->name << " : " << (*typesig)[0]->name << std::endl;
-    FunctionType *ftype = FunctionType::get(typeOf(*(*typesig)[0]), false);
-    Function *function = Function::Create(ftype, GlobalValue::InternalLinkage, id->name, context.module);
-    BasicBlock *bblock = BasicBlock::Create(getGlobalContext(), "entry", function, 0);
-    Function* ret = (Function *)expr->codeGen(context);
-    Builder.SetInsertPoint(bblock);
-    Builder.CreateRet(Builder.CreateCall(ret));
-
-    return function;
+Value* NVariableDeclaration::codeGen(CodeGenContext& context) {
+    std::cout << "Creating variable declaration " << id->name << " : " << type->name << std::endl;
+    AllocaInst *alloc = new AllocaInst(typeOf(*type), id->name.c_str(), context.currentBlock());
+    context.locals()[id->name] = alloc;
+    if (expr != NULL) {
+        new StoreInst(expr->codeGen(context), context.locals()[id->name], false, context.currentBlock());
+    }
+    return alloc;
 }
 
 Value* NBlock::codeGen(CodeGenContext& context) {

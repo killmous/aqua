@@ -64,8 +64,8 @@ type-signature
   ;
 
 declaration
-  : ident ':' type-signature '=' expr ';'
-    { $$ = new NDeclaration($1, $3, $5); }
+  : ident ':' type '=' expr ';'
+    { $$ = new NVariableDeclaration($1, $3, $5); }
   ;
 
 declaration_list

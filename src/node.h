@@ -26,13 +26,13 @@ public:
 };
 typedef std::vector<NIdentifier*> TypeSignature;
 
-class NDeclaration : public NStatement {
+class NVariableDeclaration : public NStatement {
 public:
     NIdentifier* id;
-    TypeSignature* typesig;
+    NIdentifier* type;
     NExpression* expr;
-    NDeclaration(NIdentifier* id, TypeSignature* typesig, NExpression* expr)
-        : id(id), typesig(typesig), expr(expr) {}
+    NVariableDeclaration(NIdentifier* id, NIdentifier* type, NExpression* expr)
+        : id(id), type(type), expr(expr) {}
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
