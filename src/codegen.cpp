@@ -84,6 +84,40 @@ Value* NVariableDeclaration::codeGen(CodeGenContext& context) {
     return alloc;
 }
 
+Value* NFunctionDefinition::codeGen(CodeGenContext& context) {
+    std::cout << "Creating function definition " << id->name << std::endl;
+    std::vector<Type*> args;
+    for(auto it = typesig.begin(); it < typesig.end() - 1; ++it) {
+        args.push_back(typeOf(**it));
+    }
+
+    FunctionType *FT = FunctionType::get(typeOf(*(typesig.back())), args, false);
+    Function *F = Function::Create(FT, Function::ExternalLinkage, id->name, context.module);
+
+    return F;
+}
+
+Value* NExpressionStatement::codeGen(CodeGenContext& context)
+{
+    std::cout << "Generating code for " << typeid(*expression).name() << std::endl;
+    return expression->codeGen(context);
+}
+
+Value* NMethodCall::codeGen(CodeGenContext& context)
+{
+    Function *function = context.module->getFunction(id->name.c_str());
+    if (function == NULL) {
+        std::cerr << "no such function " << id->name << std::endl;
+    }
+    std::vector<Value*> args;
+    for (auto it : arguments) {
+        args.push_back((*it).codeGen(context));
+    }
+    CallInst *call = CallInst::Create(function, ArrayRef<Value*>(args), "", context.currentBlock());
+    std::cout << "Creating method call: " << id->name << std::endl;
+    return call;
+}
+
 Value* NBlock::codeGen(CodeGenContext& context) {
     Value *last = NULL;
     for(auto it : statementlist) {

@@ -14,6 +14,7 @@ public:
 };
 
 class NExpression : public Node {};
+typedef std::vector<NExpression*> ExpressionList;
 class NStatement : public Node {};
 
 class NIdentifier : public NExpression {
@@ -33,6 +34,36 @@ public:
     NExpression* expr;
     NVariableDeclaration(NIdentifier* id, NIdentifier* type, NExpression* expr)
         : id(id), type(type), expr(expr) {}
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
+};
+
+class NFunctionDefinition : public NStatement {
+public:
+    NIdentifier* id;
+    TypeSignature typesig;
+    NFunctionDefinition(NIdentifier* id, TypeSignature typesig)
+        : id(id), typesig(typesig) {}
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
+};
+
+class NExpressionStatement : public NStatement {
+public:
+    NExpression* expression;
+    NExpressionStatement(NExpression* expression)
+        : expression(expression) { }
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
+};
+
+class NMethodCall : public NExpression {
+public:
+    NIdentifier* id;
+    ExpressionList arguments;
+    NMethodCall(NIdentifier* id, ExpressionList arguments)
+        : id(id), arguments(arguments) { }
+
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 

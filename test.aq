@@ -1,3 +1,8 @@
+extern putchar : Char -> Int;
+
 x : Int = 12;
 y : Double = 13.5;
 z : Char = '\'';
+
+putchar(z);
+putchar('n');

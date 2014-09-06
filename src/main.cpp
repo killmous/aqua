@@ -27,7 +27,6 @@ int main(int argc, char **argv) {
 
     CodeGenContext context;
     context.generateCode(*programBlock);
-    context.runCode();
 }
 
 bool verifyArgs(int argc, char **argv) {

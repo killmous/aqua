@@ -15,18 +15,20 @@ extern void yyerror(const char* s);
     NExpression* expr;
     NIdentifier* id;
     TypeSignature* typesig;
+    ExpressionList* exprlist;
     std::string* string;
     int token;
 }
 
 %token <string> IDENTIFIER INTEGER DOUBLE CHAR_LITERAL
-%token <token> ARROW FATARROW
+%token <token> ARROW FATARROW EXTERN
 
 %type <block>   program declaration_list
 %type <stmt>    declaration
 %type <expr>    numeric expr
 %type <id>      ident type
 %type <typesig> type_signature
+%type <exprlist> args
 
 %start program
 
@@ -49,7 +51,18 @@ expr
     { $$ = $<expr>1; }
   | numeric
   | CHAR_LITERAL
-    { $$ = new NChar($1->c_str()[1] == '\\' ? $1->c_str()[2] : $1->c_str()[2]); }
+    { $$ = new NChar($1->c_str()[1] == '\\' ? $1->c_str()[2] : $1->c_str()[1]); }
+  | ident '(' args ')'
+    { $$ = new NMethodCall($1, *$3); }
+  ;
+
+args
+  : /* blank */
+    { $$ = new ExpressionList(); }
+  | expr
+    { $$ = new ExpressionList(); $$->push_back($1); }
+  | args ',' expr
+    { $1->push_back($3); $$ = $1; }
   ;
 
 type
@@ -68,6 +81,10 @@ type_signature
 declaration
   : ident ':' type '=' expr ';'
     { $$ = new NVariableDeclaration($1, $3, $5); }
+  | expr ';'
+    { $$ = new NExpressionStatement($1); }
+  | EXTERN ident ':' type_signature ';'
+    { $$ = new NFunctionDefinition($2, *$4); }
   ;
 
 declaration_list
