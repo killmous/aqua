@@ -7,6 +7,7 @@ extern void yyerror(const char *s);
 
 void count();
 #define SAVE_TOKEN (yylval.string = new std::string(yytext, yyleng))
+#define TOKEN(t) (yylval.token = t)
 %}
 
 %option noyywrap
@@ -26,7 +27,11 @@ void count();
 "]"                     {               return ']';             }
 "{"                     {               return '{';             }
 "}"                     {               return '}';             }
+">"                     {               return TOKEN(TCGT);     }
+"<"                     {               return TOKEN(TCLT);		}
 "extern"                {               return EXTERN;          }
+"true"                  {               return TRUE;            }
+"false"                 {               return FALSE;           }
 {D}+                    {   SAVE_TOKEN; return INTEGER;         }
 {D}+\.{D}*              {   SAVE_TOKEN; return DOUBLE;          }
 {D}*\.{D}+              {   SAVE_TOKEN; return DOUBLE;          }

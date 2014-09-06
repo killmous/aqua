@@ -52,7 +52,7 @@ class NExpressionStatement : public NStatement {
 public:
     NExpression* expression;
     NExpressionStatement(NExpression* expression)
-        : expression(expression) { }
+        : expression(expression) {}
 
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
@@ -62,7 +62,18 @@ public:
     NIdentifier* id;
     ExpressionList arguments;
     NMethodCall(NIdentifier* id, ExpressionList arguments)
-        : id(id), arguments(arguments) { }
+        : id(id), arguments(arguments) {}
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
+};
+
+class NBinaryOperator : public NExpression {
+public:
+    int op;
+    NExpression* lhs;
+    NExpression* rhs;
+    NBinaryOperator(NExpression* lhs, int op, NExpression* rhs)
+        : lhs(lhs), op(op), rhs(rhs) {}
 
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
@@ -89,6 +100,15 @@ class NChar : public NExpression {
 public:
     char value;
     NChar(char value)
+        : value(value) {}
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
+};
+
+class NBool : public NExpression {
+public:
+    bool value;
+    NBool(bool value)
         : value(value) {}
 
     virtual llvm::Value* codeGen(CodeGenContext& context);

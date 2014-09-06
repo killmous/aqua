@@ -7,6 +7,28 @@ NBlock* programBlock;
 extern int yylex();
 extern void yyerror(const char* s);
 
+char readEscape(char esc)
+{
+  switch(esc) {
+  case 'a':
+    return '\a';
+  case 'b':
+    return '\b';
+  case 'f':
+    return '\f';
+  case 'n':
+    return '\n';
+  case 'r':
+    return '\r';
+  case 't':
+    return '\t';
+  case 'v':
+    return '\v';
+  default:
+    return esc;
+  }
+}
+
 %}
 
 %union {
@@ -21,7 +43,8 @@ extern void yyerror(const char* s);
 }
 
 %token <string> IDENTIFIER INTEGER DOUBLE CHAR_LITERAL
-%token <token> ARROW FATARROW EXTERN
+%token <token> ARROW FATARROW EXTERN TRUE FALSE
+%token <token> TCGT TCLT
 
 %type <block>   program declaration_list
 %type <stmt>    declaration
@@ -29,6 +52,7 @@ extern void yyerror(const char* s);
 %type <id>      ident type
 %type <typesig> type_signature
 %type <exprlist> args
+%type <token> comparison
 
 %start program
 
@@ -50,10 +74,21 @@ expr
   : ident
     { $$ = $<expr>1; }
   | numeric
+  | TRUE
+    { $$ = new NBool(true); }
+  | FALSE
+    { $$ = new NBool(false); }
   | CHAR_LITERAL
-    { $$ = new NChar($1->c_str()[1] == '\\' ? $1->c_str()[2] : $1->c_str()[1]); }
+    { $$ = new NChar($1->c_str()[1] == '\\' ? readEscape($1->c_str()[2]) : $1->c_str()[1]); }
   | ident '(' args ')'
     { $$ = new NMethodCall($1, *$3); }
+  | expr comparison expr
+    { $$ = new NBinaryOperator($1, $2, $3); }
+  ;
+
+comparison
+  : TCGT
+  | TCLT
   ;
 
 args
@@ -108,6 +143,6 @@ extern int yylineno;
 
 void yyerror(const char *s)
 {
-    fflush(stdout);
-    printf("%s in line %d\n", s, yylineno);
+  fflush(stdout);
+  printf("%s in line %d\n", s, yylineno);
 }

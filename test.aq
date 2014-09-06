@@ -1,8 +1,9 @@
 extern putchar : Char -> Int;
 
-x : Int = 12;
-y : Double = 13.5;
-z : Char = '\'';
+bvsw : Double = 12.0;
+bvw : Double = 9.5;
+w : Bool = bvsw > bvw;
+hello : Char = 'h';
 
-putchar(z);
-putchar('n');
+putchar(hello);
+putchar('\n');

@@ -1,5 +1,6 @@
 #include "node.h"
 #include "codegen.h"
+#include "aqua.tab.h"
 
 static IRBuilder<> Builder(getGlobalContext());
 
@@ -45,6 +46,8 @@ static Type *typeOf(const NIdentifier& type) {
         return Type::getDoubleTy(getGlobalContext());
     } else if (type.name.compare("Char") == 0) {
         return Type::getInt8Ty(getGlobalContext());
+    } else if (type.name.compare("Bool") == 0) {
+        return Type::getInt1Ty(getGlobalContext());
     } else {
         return Type::getVoidTy(getGlobalContext());
     }
@@ -63,6 +66,11 @@ Value* NDouble::codeGen(CodeGenContext& context) {
 Value* NChar::codeGen(CodeGenContext& context) {
     std::cout << "Creating char: " << value << std::endl;
     return ConstantInt::get(Type::getInt8Ty(getGlobalContext()), (int)value);
+}
+
+Value* NBool::codeGen(CodeGenContext& context) {
+    std::cout << "Creating bool: " << value << std::endl;
+    return ConstantInt::get(Type::getInt1Ty(getGlobalContext()), value);
 }
 
 Value* NIdentifier::codeGen(CodeGenContext& context) {
@@ -116,6 +124,19 @@ Value* NMethodCall::codeGen(CodeGenContext& context)
     CallInst *call = CallInst::Create(function, ArrayRef<Value*>(args), "", context.currentBlock());
     std::cout << "Creating method call: " << id->name << std::endl;
     return call;
+}
+
+Value* NBinaryOperator::codeGen(CodeGenContext& context)
+{
+    std::cout << "Creating binary operation " << op << std::endl;
+    IRBuilder<> cmpBuilder(context.currentBlock());
+    switch(op) {
+    case TCLT:
+        return cmpBuilder.CreateFCmpULT(lhs->codeGen(context), rhs->codeGen(context));
+    case TCGT:
+        return cmpBuilder.CreateFCmpUGT(lhs->codeGen(context), rhs->codeGen(context));
+    }
+    return NULL;
 }
 
 Value* NBlock::codeGen(CodeGenContext& context) {
