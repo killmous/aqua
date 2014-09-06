@@ -54,6 +54,15 @@ public:
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
+class NChar : public NExpression {
+public:
+    char value;
+    NChar(char value)
+        : value(value) {}
+
+    virtual llvm::Value* codeGen(CodeGenContext& context);
+};
+
 typedef std::vector<NStatement*> NStatementList;
 
 class NBlock : public NStatement {

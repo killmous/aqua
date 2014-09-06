@@ -19,14 +19,14 @@ extern void yyerror(const char* s);
     int token;
 }
 
-%token <string> IDENTIFIER INTEGER DOUBLE
+%token <string> IDENTIFIER INTEGER DOUBLE CHAR_LITERAL
 %token <token> ARROW FATARROW
 
 %type <block>   program declaration_list
 %type <stmt>    declaration
 %type <expr>    numeric expr
 %type <id>      ident type
-%type <typesig> type-signature
+%type <typesig> type_signature
 
 %start program
 
@@ -48,6 +48,8 @@ expr
   : ident
     { $$ = $<expr>1; }
   | numeric
+  | CHAR_LITERAL
+    { $$ = new NChar($1->c_str()[1] == '\\' ? $1->c_str()[2] : $1->c_str()[2]); }
   ;
 
 type
@@ -56,10 +58,10 @@ type
     { $2->name = "[" + $2->name + "]"; $$ = $2; }
   ;
 
-type-signature
+type_signature
   : type
     { $$ = new TypeSignature(); $$->push_back($1); }
-  | type-signature ARROW type
+  | type_signature ARROW type
     { $1->push_back($3); $$ = $1; }
   ;
 

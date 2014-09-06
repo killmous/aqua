@@ -43,6 +43,8 @@ static Type *typeOf(const NIdentifier& type) {
         return Type::getInt64Ty(getGlobalContext());
     } else if (type.name.compare("Double") == 0) {
         return Type::getDoubleTy(getGlobalContext());
+    } else if (type.name.compare("Char") == 0) {
+        return Type::getInt8Ty(getGlobalContext());
     } else {
         return Type::getVoidTy(getGlobalContext());
     }
@@ -56,6 +58,11 @@ Value* NInteger::codeGen(CodeGenContext& context) {
 Value* NDouble::codeGen(CodeGenContext& context) {
     std::cout << "Creating double: " << value << std::endl;
     return ConstantFP::get(Type::getDoubleTy(getGlobalContext()), value);
+}
+
+Value* NChar::codeGen(CodeGenContext& context) {
+    std::cout << "Creating char: " << value << std::endl;
+    return ConstantInt::get(Type::getInt8Ty(getGlobalContext()), (int)value);
 }
 
 Value* NIdentifier::codeGen(CodeGenContext& context) {
