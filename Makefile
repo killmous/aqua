@@ -1,4 +1,4 @@
-CC := clang++ -std=c++11
+CC := g++ -std=c++11
 YACC := bison
 LEX := flex
 

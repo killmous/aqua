@@ -2,6 +2,7 @@
 #define __NODE_H__
 
 #include <iostream>
+#include <string>
 #include <vector>
 #include <llvm/IR/Value.h>
 
@@ -12,6 +13,7 @@ public:
     virtual ~Node() {}
     virtual llvm::Value* codeGen(CodeGenContext& context) {}
 };
+typedef std::vector<Node> NodeList;
 
 class NExpression : public Node {};
 typedef std::vector<NExpression*> ExpressionList;
@@ -63,17 +65,6 @@ public:
     ExpressionList arguments;
     NMethodCall(NIdentifier* id, ExpressionList arguments)
         : id(id), arguments(arguments) {}
-
-    virtual llvm::Value* codeGen(CodeGenContext& context);
-};
-
-class NBinaryOperator : public NExpression {
-public:
-    int op;
-    NExpression* lhs;
-    NExpression* rhs;
-    NBinaryOperator(NExpression* lhs, int op, NExpression* rhs)
-        : lhs(lhs), op(op), rhs(rhs) {}
 
     virtual llvm::Value* codeGen(CodeGenContext& context);
 };

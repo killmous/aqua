@@ -4,7 +4,7 @@
 #include "codegen.h"
 #include "aqua.tab.h"
 
-extern NBlock* programBlock;
+extern NodeList* topLevelNodeList;
 extern FILE* yyin;
 
 bool verifyArgs(int argc, char **argv);
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     yyparse();
 
     CodeGenContext context;
-    context.generateCode(*programBlock);
+    context.generateCode(*topLevelNodeList);
 }
 
 bool verifyArgs(int argc, char **argv) {

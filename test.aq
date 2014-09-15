@@ -1,9 +1,5 @@
-extern putchar : Char -> Int;
+extern int putchar(char a);
 
-bvsw : Double = 12.0;
-bvw : Double = 9.5;
-w : Bool = bvsw > bvw;
-hello : Char = 'h';
-
-putchar(hello);
-putchar('\n');
+int main() {
+	putchar('\n');
+}
